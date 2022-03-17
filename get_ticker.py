@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup as bs
 from urllib.request import Request, urlopen
+# import pandas as pd
+# from yahoo_fin import stock_info as si
 
 class Get_Tickers:
 
@@ -9,7 +11,7 @@ class Get_Tickers:
     # returns a list of penny stock tickers that are top gainers
     def penny_stocks(self):
         # url = 'https://swing-trading.org/penny-stocks/'
-        url = 'https://penny-stocks.co/gainers/'
+        url = 'https://bestpennystocks.org/nasdaq'
 
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         webpage = urlopen(req).read()

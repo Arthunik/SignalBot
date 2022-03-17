@@ -9,7 +9,7 @@ import pandas as pd
 
 gt = Get_Tickers()
 
-tickers = gt.penny_stocks()
+# tickers = gt.penny_stocks()
 
 tz_pacific = pytz.timezone('US/Pacific')
 datetime_pacific = dt.datetime.now(tz_pacific)
@@ -32,9 +32,20 @@ async def on_ready():
 
 # shows current stocks
 @bot.command(name='show_stocks')
-async def stock(ctx):
-  tickers_dataframe = pd.DataFrame({'Tickers' : tickers})
-  await ctx.send(tickers_dataframe.to_string())
+async def stock(ctx,arg):
+  # tickers_dataframe = pd.DataFrame({'Tickers' : tickers})
+  try: 
+    current_ticker = TA_Handler(
+      symbol="{}".format(arg),
+      screener="america",
+      exchange="NASDAQ",
+      interval=Interval.INTERVAL_5_MINUTES,
+          # proxies={'http': 'http://0.0.0.0:8080', 'https': 'https://0.0.0.0:443'}
+    )
+    current_ticker = current_ticker.get_analysis().summary
+    await ctx.send('You passed {} Answer is {}'.format(arg,current_ticker["RECOMMENDATION"]))
+  except (RuntimeError, Exception):
+    await ctx.send('You passed {} it is INCORRECT Symbols'.format(arg))
 
 # shows current time
 @bot.command(name='show_time')
@@ -45,7 +56,8 @@ async def time(ctx):
 async def show_signal():
   message_channel = bot.get_channel(channel)
   data = []
-  signals = {} 
+  # for ticker in tickers:
+  #   print(ticker)
   
   current_ticker = TA_Handler(
     symbol="AAPL",
