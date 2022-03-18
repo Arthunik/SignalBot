@@ -32,19 +32,43 @@ async def on_ready():
 
 # shows current stocks
 @bot.command(name='show_stocks')
-async def stock(ctx,arg):
+async def stock(ctx,arg,arg1):
   # tickers_dataframe = pd.DataFrame({'Tickers' : tickers})
   try: 
-    current_ticker = TA_Handler(
-      symbol="{}".format(arg),
-      screener="america",
-      exchange="NASDAQ",
-      interval=Interval.INTERVAL_5_MINUTES,
-          # proxies={'http': 'http://0.0.0.0:8080', 'https': 'https://0.0.0.0:443'}
-    )
-    current_ticker = current_ticker.get_analysis().summary
-    print(gt.penny_stocks())
-    await ctx.send('You passed {} Answer is {}'.format(arg,current_ticker["RECOMMENDATION"]))
+    if arg1 == "us":
+      current_ticker = TA_Handler(
+        symbol="{}".format(arg),
+        screener="america",
+        exchange="NASDAQ",
+        interval=Interval.INTERVAL_5_MINUTES,
+      )
+      print(pd.DataFrame.from_dict(current_ticker.get_analysis().moving_averages).iloc[10])
+    elif arg1 == "cyb":
+      current_ticker = TA_Handler(
+        symbol="{}".format(arg),
+        screener="crypto",
+        exchange="BINANCE",
+        interval=Interval.INTERVAL_5_MINUTES,
+      )
+    elif arg1 == "cyp":
+      current_ticker = TA_Handler(
+        symbol="{}".format(arg),
+        screener="crypto",
+        exchange="POLONIEX",
+        interval=Interval.INTERVAL_5_MINUTES,
+      )
+    else:
+      current_ticker = TA_Handler(
+        symbol="{}".format(arg),
+        screener="america",
+        exchange="NASDAQ",
+        interval=Interval.INTERVAL_5_MINUTES,
+      )
+    
+    current_ticker_s = current_ticker.get_analysis().summary
+
+    # print(gt.penny_stocks())
+    await ctx.send('You passed {} Answer is {}'.format(arg,current_ticker_s["RECOMMENDATION"]))
   except (RuntimeError, Exception):
     await ctx.send('You passed {} it is INCORRECT Symbols'.format(arg))
 
