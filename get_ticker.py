@@ -1,29 +1,36 @@
-from bs4 import BeautifulSoup as bs
-from urllib.request import Request, urlopen
+import os
+from stocksymbol import StockSymbol
 # import pandas as pd
 # from yahoo_fin import stock_info as si
 
-class Get_Tickers:
-
+class Get_Tickers:   
     def __init__(self):
-        pass
-    
-    # returns a list of penny stock tickers that are top gainers
+      pass
+      
     def penny_stocks(self):
-        # url = 'https://swing-trading.org/penny-stocks/'
-        url = 'https://bestpennystocks.org/nasdaq'
+      api_key = os.environ['STOCK_API']
+      ss = StockSymbol(api_key)
+      market_list = ss.market_list
+      return market_list
+      
+    def index_stock(self):
+      api_key = os.environ['STOCK_API']
+      ss = StockSymbol(api_key)
+      index_list = ss.index_list
+      return index_list
 
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        webpage = urlopen(req).read()
-        soup = bs(webpage, "html.parser")
-        table = soup.find('table', attrs = {'class','styled'})
-
-
-        # slicing array starting at 0 ending at the end of the array, go by every 7th step
-        rows = table.find_all('td')
-        # tickers = rows[:len(rows):7]
-        tickers = rows[:len(rows):8]
-        for i, ticker in enumerate(tickers):
-            tickers[i] = ticker.get_text()
-
-        return 
+    def symbols_us_stocks(self):
+      api_key = os.environ['STOCK_API']
+      ss = StockSymbol(api_key)
+      symbol_list_us = ss.get_symbol_list(market="US")
+      return symbol_list_us
+    def symbols_stocks(self, arg):
+      api_key = os.environ['STOCK_API']
+      ss = StockSymbol(api_key)
+      symbol_list = ss.get_symbol_list(market=str(arg))
+      return symbol_list
+    def symbol_list_nas(self):
+      api_key = os.environ['STOCK_API']
+      ss = StockSymbol(api_key)
+      symbol_list_nas = ss.get_symbol_list(index="NASDAQ")
+      return symbol_list_nas

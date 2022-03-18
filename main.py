@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 import pytz
 import datetime as dt
 import pandas as pd
+import json
 
 gt = Get_Tickers()
 
@@ -29,7 +30,6 @@ async def on_ready():
     print('market open')
     await bot.get_channel(channel).send("The market is open")
 
-
 # shows current stocks
 @bot.command(name='show_stocks')
 async def stock(ctx,arg):
@@ -43,6 +43,7 @@ async def stock(ctx,arg):
           # proxies={'http': 'http://0.0.0.0:8080', 'https': 'https://0.0.0.0:443'}
     )
     current_ticker = current_ticker.get_analysis().summary
+    print(gt.penny_stocks())
     await ctx.send('You passed {} Answer is {}'.format(arg,current_ticker["RECOMMENDATION"]))
   except (RuntimeError, Exception):
     await ctx.send('You passed {} it is INCORRECT Symbols'.format(arg))
@@ -51,16 +52,30 @@ async def stock(ctx,arg):
 @bot.command(name='show_time')
 async def time(ctx):
   await ctx.send(current_time)
+# shows current time
+@bot.command(name='show_list')
+async def list(ctx, arg, arg2):
+  if str(arg2) == "index":
+    data = pd.DataFrame(gt.index_stock())
+  elif str(arg2) == "market":
+    data = pd.DataFrame(gt.penny_stocks())
+  else:
+    data = pd.DataFrame(gt.symbols_stocks(str(arg2)))
+  data = data.head(int(arg))
+  for x,row in data.iterrows():
+    print(row)
+    await ctx.send(row[0]+"->"+row[1]+" ("+row[2]+")")
+
 
 @tasks.loop(hours=1)
-async def show_signal():
+async def show_signal(arg):
   message_channel = bot.get_channel(channel)
   data = []
   # for ticker in tickers:
   #   print(ticker)
   
   current_ticker = TA_Handler(
-    symbol="AAPL",
+    symbol="{}".format(arg),
     screener="america",
     exchange="NASDAQ",
     interval=Interval.INTERVAL_5_MINUTES,
@@ -95,7 +110,7 @@ async def show_signal():
   #     # proxies={'http': 'http://0.0.0.0:8080', 'https': 'https://0.0.0.0:443'}
   # )
   # print(current_ticker)
-  data.append({'ticker' : "AAPL",
+  data.append({'ticker' : "{}".format(arg),
                'signal' :current_ticker['RECOMMENDATION']})
   # signals = pd.DataFrame(data)
     # print(pd.DataFrame(data))
@@ -106,6 +121,6 @@ async def before():
   await bot.wait_until_ready()
 
 
-show_signal.start()
+show_signal.start("AAPL")
 token = os.environ['TOKEN']
 bot.run(token)
