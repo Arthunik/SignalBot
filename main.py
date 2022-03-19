@@ -29,6 +29,8 @@ async def on_ready():
   if datetime_pacific > market_open and datetime_pacific < market_close:
     print('market open')
     await bot.get_channel(channel).send("The market is open")
+    await bot.get_channel(channel).send("GET STOCK SYMBOLS BY USING '!show_list [#row max=25] [market (us,th,crypto,...)]' !")
+    await bot.get_channel(channel).send("GET SIGNAL BY USING '!show_stocks [symbol]' !")
 
 # shows current stocks
 @bot.command(name='show_stocks')
